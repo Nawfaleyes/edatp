@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Ombre de la Montagne, Chamonix</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Franklin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary: #1b2a38;
+  --accent: #c0593b;
+  --nature: #4a7c59;
+  --warm: #b8860b;
+  --ice: #3a7891;
+  --bg: #f4f0e7;
+  --text: #2c2c2c;
+  --glass: rgba(244,240,231,.94);
+  --glass-dark: rgba(27,42,56,.92);
+  --stone: #8a8378;
+  --danger: #b83a2e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Libre Franklin',sans-serif;color:var(--text);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:700;color:var(--primary)}
+::selection{background:rgba(192,89,59,.2)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#c4b8a8;border-radius:3px}
+
+/* ===== PROGRESS ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--nature),var(--accent),var(--warm));z-index:1001;width:0;transition:width .08s}
+
+/* ===== HERO ===== */
+header{height:100vh;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;position:relative;overflow:hidden;padding-bottom:8vh}
+.hero-bg{position:absolute;inset:0;z-index:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:saturate(.35) brightness(.55) contrast(1.1)}
+header::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(244,240,231,0) 0%,rgba(244,240,231,.15) 30%,rgba(244,240,231,.65) 65%,rgba(244,240,231,1) 100%);z-index:1}
+header .content{position:relative;z-index:2;max-width:720px;padding:0 2rem}
+header h1{font-size:clamp(2.8rem,7vw,4.5rem);font-weight:900;line-height:1.02;margin-bottom:1.2rem;color:var(--primary);letter-spacing:-1px}
+header h1 span{display:block;font-size:.75rem;font-family:'Libre Franklin',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:5px;color:var(--accent);margin-bottom:.8rem}
+header .subtitle{font-size:1.05rem;font-weight:300;color:#666;max-width:480px;margin:0 auto;line-height:1.8}
+.scroll-cue{margin-top:2.5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--primary);opacity:.4;animation:drift 2.5s ease-in-out infinite}
+.scroll-cue span{font-size:.65rem;text-transform:uppercase;letter-spacing:4px;font-weight:600}
+.scroll-cue svg{width:18px;height:18px}
+@keyframes drift{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(8px);opacity:.6}}
+
+/* ===== SCROLLYTELLING CORE ===== */
+.scrolly-container{display:flex;position:relative;max-width:1400px;margin:0 auto}
+.story-column{width:42%;padding-bottom:20vh;z-index:10}
+.chart-column{width:58%;height:100vh;position:sticky;top:0;display:flex;justify-content:center;align-items:center;padding:2.5rem;overflow:hidden;background:linear-gradient(135deg,#eae5dc 0%,#e0dbd2 100%)}
+.chart-column::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(0,0,0,.025) 49px,rgba(0,0,0,.025) 50px),repeating-linear-gradient(90deg,transparent,transparent 49px,rgba(0,0,0,.025) 49px,rgba(0,0,0,.025) 50px);pointer-events:none;z-index:0}
+
+/* ===== STEPS ===== */
+.step{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:2rem 2.5rem;opacity:.12;transition:opacity .6s ease}
+.step.active{opacity:1}
+.step-card{background:var(--glass);padding:2.5rem;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.06);border-left:4px solid var(--primary);backdrop-filter:blur(6px)}
+.step-card.nature{border-left-color:var(--nature)}
+.step-card.danger{border-left-color:var(--accent)}
+.step-card.warm{border-left-color:var(--warm)}
+.step-card.ice{border-left-color:var(--ice)}
+.step-label{font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:3.5px;margin-bottom:.6rem;color:var(--accent)}
+.step-card h2{font-size:clamp(1.5rem,3vw,2rem);margin-bottom:1rem;line-height:1.2}
+.step-card p{font-size:.95rem;margin-bottom:.7rem;color:#555;line-height:1.75}
+.step-card p strong{color:var(--primary);font-weight:600}
+.step-card p em{color:var(--accent);font-style:normal;font-weight:500}
+
+/* ===== DATA HIGHLIGHTS ===== */
+.data-hero{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2.5rem,5vw,3.5rem);color:var(--primary);display:block;margin:1.2rem 0 .4rem;line-height:1}
+.data-hero.danger{color:var(--accent)}
+.data-hero.nature{color:var(--nature)}
+.data-hero.warm{color:var(--warm)}
+.data-hero.ice{color:var(--ice)}
+.data-caption{font-size:.8rem;color:#999;font-style:italic}
+
+/* ===== CHART PANEL ===== */
+.visual-panel{position:relative;z-index:1;width:100%;max-width:620px}
+.chart-wrapper{background:#fff;padding:2rem;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.08);display:none}
+.chart-wrapper.visible{display:block}
+#chartTitle{text-align:center;margin-bottom:1rem;color:var(--primary);font-size:.8rem;font-family:'Libre Franklin',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px}
+
+/* ===== IMAGE PANEL ===== */
+.image-panel{display:none;flex-direction:column;gap:1rem;align-items:center;justify-content:center;width:100%;max-width:580px}
+.image-panel.visible{display:flex}
+.image-panel img{width:100%;max-height:62vh;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.12);object-fit:cover}
+.image-caption{font-size:.72rem;color:#999;text-align:center;letter-spacing:.5px;max-width:400px;line-height:1.6}
+
+/* ===== ANIMAL POPUP ===== */
+.popup-overlay{position:fixed;inset:0;background:rgba(27,42,56,.7);backdrop-filter:blur(14px);z-index:2000;opacity:0;pointer-events:none;transition:opacity .4s;display:flex;align-items:center;justify-content:center}
+.popup-overlay.active{opacity:1;pointer-events:all}
+.popup{background:#fff;border-radius:12px;max-width:540px;width:92%;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.22,1,.36,1);box-shadow:0 30px 70px rgba(0,0,0,.2)}
+.popup-overlay.active .popup{transform:translateY(0) scale(1)}
+.popup-hero{height:200px;position:relative;overflow:hidden;border-radius:12px 12px 0 0}
+.popup-hero img{width:100%;height:100%;object-fit:cover}
+.popup-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(27,42,56,.85) 100%)}
+.popup-hero-text{position:absolute;bottom:16px;left:24px;z-index:2}
+.popup-hero-text h3{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#fff}
+.popup-hero-text .latin{font-size:.72rem;color:rgba(255,255,255,.6);font-style:italic}
+.popup-body{padding:24px}
+.popup-stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.popup-stat-item{background:var(--bg);border-radius:8px;padding:14px;text-align:center}
+.popup-stat-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--accent);margin-bottom:2px}
+.popup-stat-label{font-size:.68rem;color:var(--stone);line-height:1.4;text-transform:uppercase;letter-spacing:.5px}
+.popup-desc{font-size:.88rem;color:#555;line-height:1.8;margin-bottom:16px}
+.popup-desc strong{color:var(--primary);font-weight:600}
+.popup-bar{margin-bottom:12px}
+.popup-bar-label{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:5px}
+.popup-bar-label span:first-child{color:var(--stone)}
+.popup-bar-label span:last-child{font-family:'Playfair Display',serif;font-weight:700;color:var(--primary)}
+.popup-bar-track{height:6px;background:rgba(0,0,0,.06);border-radius:3px;overflow:hidden}
+.popup-bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.popup-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);border:none;color:var(--primary);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.popup-close:hover{background:var(--accent);color:#fff}
+
+/* ===== ANIMAL CARD (clickable in steps) ===== */
+.animal-row{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(0,0,0,.02);border:1px solid rgba(0,0,0,.06);border-radius:8px;cursor:pointer;transition:all .35s;margin-bottom:8px}
+.animal-row:hover{background:rgba(192,89,59,.04);border-color:rgba(192,89,59,.15);transform:translateX(4px)}
+.animal-row img{width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.animal-row .info{flex:1}
+.animal-row .name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--primary)}
+.animal-row .meta{font-size:.75rem;color:var(--stone)}
+.animal-row .hint{font-size:.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:2px;opacity:0;transition:opacity .3s}
+.animal-row:hover .hint{opacity:1}
+
+/* ===== SECTION DIVIDER ===== */
+.section-break{padding:clamp(60px,10vh,120px) 2rem;text-align:center;position:relative}
+.section-break-text{font-family:'Playfair Display',serif;font-size:clamp(1.1rem,2.5vw,1.5rem);font-weight:400;font-style:italic;color:var(--stone);max-width:580px;margin:0 auto;line-height:1.65}
+
+/* ===== FINALE ===== */
+.finale{background:var(--primary);color:#fff;padding:clamp(80px,14vh,140px) 2rem;text-align:center;position:relative;overflow:hidden}
+.finale::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(192,89,59,.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:glow 6s infinite}
+@keyframes glow{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.4}50%{transform:translate(-50%,-50%) scale(1.15);opacity:.7}}
+.finale-inner{position:relative;z-index:2;max-width:640px;margin:0 auto}
+.finale h2{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1.2rem}
+.finale h2 em{font-style:italic;color:var(--accent)}
+.finale p{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.9;margin-bottom:1rem}
+.finale-quote{border-left:3px solid var(--accent);padding:1.5rem 2rem;margin:2.5rem auto;max-width:540px;text-align:left}
+.finale-quote p{font-family:'Playfair Display',serif;font-size:clamp(1.05rem,2vw,1.3rem);font-style:italic;color:rgba(255,255,255,.75);line-height:1.6}
+
+/* ===== FOOTER ===== */
+footer{background:#141e28;color:#fff;text-align:center;padding:2.5rem 1.5rem}
+footer p{font-size:.72rem;opacity:.4;margin-bottom:.2rem;letter-spacing:1px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .scrolly-container{flex-direction:column-reverse}
+  .story-column,.chart-column{width:100%}
+  .chart-column{height:50vh;position:relative;top:0;z-index:20}
+  .step{min-height:auto;margin-bottom:2rem;padding:1.5rem}
+  .step-card{padding:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="prog"></div>
+
+<!-- ======================== HERO ======================== -->
+<header>
+  <div class="hero-bg">
+    <img src="images/mount.jpeg" alt="Chamonix Mont-Blanc">
+  </div>
+  <div class="content">
+    <h1>
+      <span>Vallée de Chamonix · 2008–2024</span>
+      Displaced
+    </h1>
+    <p class="subtitle">Quand l'Homme grimpe et dévale les sommets, plus de 25 espèces se réfugient dans l'ombre. Voyagez au cœur d'une population invisible.</p>
+    <div class="scroll-cue">
+      <span>Descendez</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+  </div>
+</header>
+
+<!-- ======================== SCROLLYTELLING ======================== -->
+<div class="scrolly-container">
+  <div class="story-column">
+
+    <!-- ===== ACTE 1 : LA PRESSION ===== -->
+    <div class="step" data-index="0">
+      <div class="step-card ice">
+        <div class="step-label">Acte I · La Pression</div>
+        <h2>48% des visites concentrées en hiver</h2>
+        <p>L'Homme ne se rend pas à Chamonix de manière uniforme. Sa fréquentation est concentrée, plus de la moitié des visiteurs viennent en hiver. .</p>
+        <p>Le ratio est vertigineux, <strong>11 fois</strong> plus de visiteur en hiver qu'en automne. La montagne n'accueille pas - elle subit des vagues.</p>
+        <span class="data-hero ice">×11</span>
+        <span class="data-caption">Ratio hiver / automne.</span>
+      </div>
+    </div>
+
+    <div class="step" data-index="1">
+      <div class="step-card danger">
+        <div class="step-label">Acte I · La double pression</div>
+        <h2>+36% le weekend en automne</h2>
+        <p>L'automne est un moment de repos compensatoire pour la vallée. Cependant des visiteurs rattrapent la basse saison le weekend, créant des pics de pressions soudains. Pareil au printemps où c'est plus de </strong>17%</p>strong>.</p>
+        <p>L'été est la seule saison où la fréquentation <em>baisse</em> le weekend. Triple concentration : temporelle, hebdomadaire, spatiale.</p>
+        <span class="data-hero danger">80%</span>
+        <span class="data-caption">De l'activité humaine concentrée entre 10h et 17h, sur seulement 10 remontées mécaniques.</span>
+      </div>
+    </div>
+
+    <!-- ===== ACTE 2 : LES PROTAGONISTES ===== -->
+    <div class="step" data-index="2">
+      <div class="step-card nature">
+        <div class="step-label">Acte II · Les Protagonistes</div>
+        <h2>25 espèces, une vallée</h2>
+        <p>Du chamois dominant les crêtes à 2 127 m, au loup fantomatique traversant la nuit, chaque espèce a trouvé sa place. <strong>Cliquez</strong> pour explorer leurs stratégies de survie.</p>
+        <div style="margin-top:16px">
+          <div class="animal-row" onclick="openPopup('chamois')">
+            <img src="images/_.jpeg" alt="Chamois">
+            <div class="info"><div class="name">Chamois</div><div class="meta">7% des détections · Alpin · 2 127 m</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+          <div class="animal-row" onclick="openPopup('cerf')">
+            <img src="https://images.unsplash.com/photo-1484406566174-9da000fda645?w=150&q=80" alt="Cerf">
+            <div class="info"><div class="name">Cerf</div><div class="meta">6% · 55% nocturne · Pic à 4h du matin</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+          <div class="animal-row" onclick="openPopup('renard')">
+            <img src="images/renard.jpeg" alt="Renard">
+            <div class="info"><div class="name">Renard</div><div class="meta">L'exception : corrélation positive avec l'Homme</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+          <div class="animal-row" onclick="openPopup('marmotte')">
+            <img src="images/marmote.jpeg" alt="Marmotte">
+            <div class="info"><div class="name">Marmotte</div><div class="meta">61% diurne · 2 292 m · Hibernation 7 mois</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step" data-index="3">
+      <div class="step-card danger">
+        <div class="step-label">Acte II · Les fantômes</div>
+        <h2>Ceux qu'on n'aperçoit presque jamais</h2>
+        <p>Le loup : <strong>63% nocturne</strong>, moins de 80 détections en 8 ans. Le lynx : <em>2 observations</em> en 8 ans, un fantôme absolu. Le bouquetin : protégé par l'altitude extrême, il reste à 85% diurne.</p>
+        <div style="margin-top:16px">
+          <div class="animal-row" onclick="openPopup('loup')">
+            <img src="images/loup.jpeg" alt="Loup">
+            <div class="info"><div class="name" style="color:var(--danger)">Loup</div><div class="meta">63% nocturne · 1 170–2 635 m</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+          <div class="animal-row" onclick="openPopup('bouquetin')">
+            <img src="images/bouquetin.jpeg" alt="Bouquetin">
+            <div class="info"><div class="name" style="color:var(--danger)">Bouquetin</div><div class="meta">15% nocturne · 1 450–2 740 m</div></div>
+            <div class="hint">Explorer →</div>
+          </div>
+        </div>
+        <span class="data-hero danger">2</span>
+        <span class="data-caption">Observations du lynx en 8 années de surveillance. Un fantôme dans la vallée.</span>
+      </div>
+    </div>
+
+    <!-- ===== ACTE 3 : LE CONFLIT ===== -->
+    <div class="step" data-index="4">
+      <div class="step-card warm">
+        <div class="step-label">Acte III · Le Conflit Invisible</div>
+        <h2>Aucune corrélation. Et pourtant.</h2>
+        <p>Globalement, il n'existe <strong>aucune relation linéaire</strong> entre la fréquentation humaine et l'activité de la faune. La faune ne fuit pas simplement, elle <em>s'adapte</em>.</p>
+        <p>L'absence de corrélation n'est pas une absence de conflit. C'est la preuve d'une adaptation qui est devenue <strong>invisible à nos mesures</strong>.</p>
+        <span class="data-hero warm">0%</span>
+        <span class="data-caption">De corrélation globale faune–humain. L'adaptation masque le conflit.</span>
+      </div>
+    </div>
+
+    <!-- ===== ACTE 4 : LA NUIT ===== -->
+    <div class="step" data-index="5">
+      <div class="step-card">
+        <div class="step-label">Acte IV · La Vie dans l'Ombre</div>
+        <h2>Le cerf a inversé son horloge biologique</h2>
+        <p>Naturellement crépusculaire, le cerf est devenu un animal de la <em>nuit profonde</em>. Son pic d'activité : <strong>4h du matin</strong>, au moment exact où la présence humaine est au minimum absolu.</p>
+        <p>Le renard suit à 19h, juste après le départ des derniers randonneurs. Seule la marmotte garde son rythme solaire, sa physiologie d'hibernant l'y contraint.</p>
+        <span class="data-hero">55%</span>
+        <span class="data-caption">D'activité nocturne pour le cerf. Un décalage maximal avec l'activité humaine.</span>
+      </div>
+    </div>
+
+    <!-- ===== ACTE 5 : LES REFUGES ===== -->
+    <div class="step" data-index="6">
+      <div class="step-card nature">
+        <div class="step-label">Acte V · Les Refuges</div>
+        <h2>Un passage humain, 15 heures perdues</h2>
+        <p>Un seul randonneur suffit. Le chamois met <em>15 heures</em> à revenir à sa station après un dérangement. Pour un marcheur, c'est un pas. Pour un chamois, c'est <strong>une journée entière volée</strong>.</p>
+        <p>L'étage alpin (2 000–2 500 m) reste le dernier sanctuaire : <strong>85 animaux pour 1 humain</strong>. Mais la compression temporelle s'aggrave, les espèces sont forcées de partager les mêmes créneaux.</p>
+        <span class="data-hero nature">85:1</span>
+        <span class="data-caption">Ratio faune / humain à l'étage alpin. Le dernier sanctuaire.</span>
+      </div>
+    </div>
+
+  
+
+  </div>
+
+  <!-- ===== CHART COLUMN ===== -->
+  <div class="chart-column">
+    <div class="visual-panel">
+      <div class="image-panel" id="imagePanel">
+        <img id="panelImage" src="images/distrib_animal.png" alt="">
+        <span class="image-caption" id="panelCaption"></span>
+      </div>
+      <div class="chart-wrapper" id="chartPanel">
+        <h4 id="chartTitle"></h4>
+        <canvas id="storyChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== FINALE ======================== -->
+<section class="finale">
+  <div class="finale-inner">
+    <h2>L'équilibre fragile</em></h2>
+    <p>La vallée de Chamonix n'est pas un champ de bataille visible. C'est un champ d'adaptation. Le cerf a choisi la nuit. Le chamois a choisi l'altitude. Le renard a choisi la cohabitation. 25 espèces ont chaqun leur scénario de survie.</p>
+    <div class="finale-quote">
+      <p>Si l'humain ne ressent pas de conflit, l'animal subit une transformation nocive. L'équilibre reste fragile, entre une biodiversité en hausse et une compression qui force les espèces à se partager des espaces de plus en plus étroits.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Cohabitation Homme–Faune · Vallée de Chamonix-Mont-Blanc · 2008–2024</p>
+  <p>Data Storytelling · Nawfal Nacireddine, Tristan Pinto</p>
+</footer>
+
+<!-- ======================== POPUP ======================== -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup" onclick="event.stopPropagation()">
+    <button class="popup-close" onclick="closePopup()">✕</button>
+    <div id="popupInner"></div>
+  </div>
+</div>
+
+<script>
+// ===== ANIMAL DATA =====
+const animals = {
+  chamois:{
+    name:'Chamois',latin:'Rupicapra rupicapra',
+    photo:'images/_.jpeg',
+    desc:"Le chamois est l'espèce la plus détectée de la vallée. Habitant des crêtes alpines à 2 127 m d'altitude moyenne, il possède une <strong>plasticité altitudinale exceptionnelle</strong> de 1 570 m. Cette amplitude lui permet de fuir en altitude lorsque la pression humaine augmente.",
+    stats:[{val:'7%',label:'des détections'},{val:'2 127 m',label:'altitude moyenne'},{val:'32%',label:'nocturne'},{val:'15h',label:'retour après dérangement'}],
+    bars:[{label:'Activité nocturne',val:32,color:'var(--ice)'},{label:'Plasticité altitudinale',val:100,color:'var(--nature)'}]
+  },
+  cerf:{
+    name:'Cerf',latin:'Cervus elaphus',
+    photo:'https://images.unsplash.com/photo-1484406566174-9da000fda645?w=800&q=80',
+    desc:"Le cerf a complètement <strong>inversé son rythme biologique</strong>. Naturellement crépusculaire, il est devenu un animal de la nuit profonde avec un pic d'activité à 4h du matin, le décalage maximal possible avec l'activité humaine.",
+    stats:[{val:'6%',label:'des détections'},{val:'1 714 m',label:'altitude moyenne'},{val:'55%',label:'nocturne'},{val:'13h',label:'retour après dérangement'}],
+    bars:[{label:'Activité nocturne',val:55,color:'var(--primary)'},{label:'Plasticité altitudinale',val:85,color:'var(--nature)'}]
+  },
+  renard:{
+    name:'Renard',latin:'Vulpes vulpes',
+    photo:'images/renard.jpeg',
+    desc:"Le renard est <strong>l'exception</strong> de la vallée : la seule espèce montrant une corrélation positive avec l'activité humaine. Opportuniste parfait, il profite des déchets et des proies perturbées par les randonneurs.",
+    stats:[{val:'51%',label:'nocturne'},{val:'1 754 m',label:'altitude moyenne'},{val:'12h',label:'retour après dérangement'},{val:'+33%',label:'corrélation avec l\'Homme'}],
+    bars:[{label:'Activité nocturne',val:51,color:'var(--warm)'},{label:'Plasticité altitudinale',val:100,color:'var(--nature)'}]
+  },
+  marmotte:{
+    name:'Marmotte',latin:'Marmota marmota',
+    photo:'images/marmote.jpeg',
+    desc:"La marmotte garde un rythme <strong>strictement diurne</strong>. Sa physiologie d'hibernant l'y contraint. Active de mai à septembre, elle hiberne 7 mois à plus de 2 200 m.",
+    stats:[{val:'61%',label:'diurne'},{val:'2 292 m',label:'altitude moyenne'},{val:'1%',label:'nocturne'},{val:'7 mois',label:'hibernation'}],
+    bars:[{label:'Activité diurne',val:61,color:'var(--warm)'},{label:'Plasticité altitudinale',val:83,color:'var(--nature)'}]
+  },
+  loup:{
+    name:'Loup',latin:'Canis lupus',
+    photo:'images/loup.jpeg',
+    desc:"Le loup est un <strong>fantôme</strong> de la vallée. Moins de 80 détections en 8 ans. Il traverse Chamonix principalement la nuit, entre 1 170 et 2 635 m.",
+    stats:[{val:'63%',label:'nocturne'},{val:'< 0,1%',label:'des détections'},{val:'1 170–2 635 m',label:'altitude'},{val:'Fantôme',label:'statut'}],
+    bars:[{label:'Activité nocturne',val:63,color:'var(--danger)'}]
+  },
+  bouquetin:{
+    name:'Bouquetin',latin:'Capra ibex',
+    photo:'images/bouquetin.jpeg',
+    desc:"Le bouquetin habite les hauteurs entre 1 450 et 2 740 m. Avec seulement 15% d'activité nocturne, il reste <strong>principalement diurne</strong>, protégé par l'altitude extrême.",
+    stats:[{val:'15%',label:'nocturne'},{val:'85%',label:'diurne'},{val:'1 450–2 740 m',label:'altitude'},{val:'Altitude',label:'protection'}],
+    bars:[{label:'Activité nocturne',val:15,color:'var(--ice)'},{label:'Protection altitudinale',val:90,color:'var(--nature)'}]
+  }
+};
+
+function openPopup(id){
+  const a=animals[id];if(!a)return;
+  document.getElementById('popupInner').innerHTML=`
+    <div class="popup-hero"><img src="${a.photo}" alt="${a.name}"><div class="popup-hero-text"><h3>${a.name}</h3><div class="latin">${a.latin}</div></div></div>
+    <div class="popup-body">
+      <div class="popup-stat">${a.stats.map(s=>`<div class="popup-stat-item"><div class="popup-stat-val">${s.val}</div><div class="popup-stat-label">${s.label}</div></div>`).join('')}</div>
+      <div class="popup-desc">${a.desc}</div>
+      ${a.bars.map(b=>`<div class="popup-bar"><div class="popup-bar-label"><span>${b.label}</span><span>${b.val}%</span></div><div class="popup-bar-track"><div class="popup-bar-fill" style="width:0;background:${b.color}" data-t="${b.val}"></div></div></div>`).join('')}
+    </div>`;
+  document.getElementById('popupOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>{document.querySelectorAll('.popup-bar-fill').forEach(b=>{b.style.width=b.dataset.t+'%'})},100);
+}
+function closePopup(e){
+  if(e&&e.target!==e.currentTarget&&!e.target.classList.contains('popup-close'))return;
+  document.getElementById('popupOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePopup()});
+
+// ===== STEP VISUAL CONFIGURATIONS =====
+// mode: 'chart' or 'image'
+const stepVisuals = [
+  {mode:'chart'},    // 0: seasonal bar
+  {mode:'chart'},    // 1: weekend heatmap-style
+  {mode:'image',src:'images/distrib_animal.png',caption:'Le chamois, espèce la plus détectée, domine les crêtes à plus de 2 100 m d\'altitude.'},
+  {mode:'image',src:'images/loupàpp.png',caption:'Le loup, 63% nocturne, moins de 80 détections en 8 ans. Un fantôme dans la vallée.'},
+  {mode:'image',src:'images/correlation.png',caption:'basse coorelation entre activité humaine et les animaux '},
+    // 4: comparison human/fauna
+  {mode:'image',src:'images/cerf.png'},    // 5: nocturnal activity
+  {mode:'chart'},    // 6: effarouchement
+  {mode:'chart'},    // 7: biodiversity
+];
+
+// ===== CHART CONFIGS =====
+const chartFontFamily = "'Libre Franklin', sans-serif";
+const chartConfigs = {
+  0: {
+    type:'bar',
+    label:'RÉPARTITION SAISONNIÈRE DES VISITES',
+    labels:['Hiver','Printemps','Été','Automne'],
+    data:[48,29,19,4],
+    colors:['#3a7891','#4a7c59','#b8860b','#c0593b'],
+    options:{
+      indexAxis:'x',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},
+      scales:{
+        y:{max:55,ticks:{callback:v=>v+'%',font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{font:{family:chartFontFamily,size:12,weight:'600'}},grid:{display:false}}
+      }
+    }
+  },
+  1: {
+    type:'bar',
+    label:'EFFET WEEKEND PAR SAISON',
+    labels:['Hiver','Printemps','Été','Automne'],
+    data:[8,17.2,-4.9,35.7],
+    colors:['#3a7891','#4a7c59','#888','#c0593b'],
+    options:{
+      indexAxis:'x',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw>0?'+':'')+c.raw+'%'}}},
+      scales:{
+        y:{ticks:{callback:v=>(v>0?'+':'')+v+'%',font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{font:{family:chartFontFamily,size:12,weight:'600'}},grid:{display:false}}
+      }
+    }
+  },
+  4: {
+    type:'bar',
+    label:'PERCEPTION HUMAINE VS RÉALITÉ FAUNE',
+    labels:['Corrélation globale','Cerf nocturne','Renard corrélation+','Retour chamois (h)'],
+    data:[0,55,33,15],
+    colors:['#888','#1b2a38','#b8860b','#c0593b'],
+    options:{
+      indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{family:chartFontFamily,size:11,weight:'600'}},grid:{display:false}}
+      }
+    }
+  },
+  5: {
+    type:'bar',
+    label:'ACTIVITÉ NOCTURNE PAR ESPÈCE (%)',
+    labels:['Cerf','Renard','Chevreuil','Chamois','Vache','Oiseau','Marmotte'],
+    data:[55,51,33,32,17,8,1],
+    colors:['#1b2a38','#b8860b','#3a7891','#3a7891','#888','#888','#c4b8a8'],
+    options:{
+      indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},
+      scales:{
+        x:{max:60,ticks:{callback:v=>v+'%',font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{family:chartFontFamily,size:12,weight:'600'}},grid:{display:false}}
+      }
+    }
+  },
+  6: {
+    type:'bar',
+    label:'TEMPS DE RETOUR APRÈS DÉRANGEMENT',
+    labels:['Oiseau','Chamois','Cerf','Renard','Chevreuil','Vache'],
+    data:[17.7,15.2,13.2,12,9.6,3.5],
+    colors:['#c0593b','#c0593b','#b8860b','#b8860b','#888','#4a7c59'],
+    options:{
+      indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'h'}}},
+      scales:{
+        x:{max:20,ticks:{callback:v=>v+'h',font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{family:chartFontFamily,size:12,weight:'600'}},grid:{display:false}}
+      }
+    }
+  },
+  7: {
+    type:'line',
+    label:'RICHESSE SPÉCIFIQUE 2017–2024',
+    labels:['2017','2018','2019','2020','2021','2022','2023','2024'],
+    datasets:[{
+      label:'Espèces détectées',
+      data:[7,17,14,17,20,22,23,22],
+      borderColor:'#4a7c59',
+      backgroundColor:'rgba(74,124,89,.1)',
+      fill:true,
+      tension:.4,
+      pointBackgroundColor:'#4a7c59',
+      pointRadius:5,
+      pointHoverRadius:7
+    }],
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{min:0,max:28,ticks:{font:{family:chartFontFamily,size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{font:{family:chartFontFamily,size:11,weight:'600'}},grid:{display:false}}
+      }
+    }
+  }
+};
+
+// ===== CHART RENDERING =====
+const ctx = document.getElementById('storyChart').getContext('2d');
+let myChart = null;
+const imagePanel = document.getElementById('imagePanel');
+const chartPanel = document.getElementById('chartPanel');
+const panelImage = document.getElementById('panelImage');
+const panelCaption = document.getElementById('panelCaption');
+
+function renderStep(index){
+  const visual = stepVisuals[index];
+  if(!visual) return;
+  if(visual.mode==='image'){
+    panelImage.src=visual.src;
+    panelCaption.textContent=visual.caption;
+    imagePanel.classList.add('visible');
+    chartPanel.classList.remove('visible');
+  } else {
+    imagePanel.classList.remove('visible');
+    chartPanel.classList.add('visible');
+    renderChart(index);
+  }
+}
+
+function renderChart(index){
+  const config=chartConfigs[index];
+  if(!config) return;
+  document.getElementById('chartTitle').innerText=config.label||'';
+  if(myChart) myChart.destroy();
+  let dataConfig={};
+  if(config.datasets){
+    dataConfig={labels:config.labels,datasets:config.datasets};
+  } else {
+    dataConfig={
+      labels:config.labels,
+      datasets:[{
+        label:config.label,
+        data:config.data,
+        backgroundColor:config.colors,
+        borderColor:'transparent',
+        borderWidth:0,
+        borderRadius:4,
+        barThickness:config.options?.indexAxis==='y'?22:undefined,
+        maxBarThickness:36
+      }]
+    };
+  }
+  const baseOptions={
+    responsive:true,
+    animation:{duration:900,easing:'easeOutQuart'},
+    plugins:{legend:{labels:{font:{family:chartFontFamily,size:12},padding:14}}},
+    ...(config.options||{})
+  };
+  myChart=new Chart(ctx,{type:config.type,data:dataConfig,options:baseOptions});
+}
+
+// ===== INTERSECTION OBSERVER =====
+const steps=document.querySelectorAll('.step');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      steps.forEach(s=>s.classList.remove('active'));
+      entry.target.classList.add('active');
+      const idx=entry.target.getAttribute('data-index');
+      if(idx!==null) renderStep(parseInt(idx));
+    }
+  });
+},{root:null,rootMargin:'0px',threshold:.5});
+steps.forEach(step=>observer.observe(step));
+renderStep(0);
+
+// ===== PROGRESS BAR =====
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=`${(s/h)*100}%`;
+});
+</script>
+</body>
+</html>
